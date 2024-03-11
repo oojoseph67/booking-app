@@ -15,6 +15,7 @@ package main // using the default package main
 import (
 	"fmt"
 	"strings"
+	"booking-app/helper"
 )
 
 var conferenceName = "mcQu33n GO Conference"
@@ -47,15 +48,6 @@ func getFirstNames(bookingDetails []string) []string {
 	// fmt.Println(" ")
 }
 
-func validation(firstName string, lastName string, email string, userTickets uint, city string) (bool, bool, bool, bool) {
-
-	isValidName := len(firstName) >= 2 && len(lastName) >= 2
-	isValidEmail := strings.Contains(email, "@")
-	isValidTicket := userTickets > 0 && userTickets <= remainingTickets
-	isValidCity := city != "Lagos" && city != "Abuja"
-
-	return isValidName, isValidEmail, isValidTicket, isValidCity
-}
 
 func getUserInput() (string, string, string, uint, string) {
 
@@ -110,7 +102,7 @@ func main() {
 	for {
 		firstName, lastName, email, userTickets, city := getUserInput()
 
-		isValidName, isValidEmail, isValidTicket, isValidCity := validation(firstName, lastName, email, userTickets, city)
+		isValidName, isValidEmail, isValidTicket, isValidCity := helper.Validation(firstName, lastName, email, userTickets, city, remainingTickets)
 
 		if isValidName && isValidEmail && isValidTicket {
 
