@@ -13,9 +13,10 @@
 package main // using the default package main
 
 import (
-	"fmt"
-	"strings"
 	"booking-app/helper"
+	"fmt"
+	"strconv"
+	// "strings"
 )
 
 var conferenceName = "mcQu33n GO Conference"
@@ -23,7 +24,8 @@ var conferenceName = "mcQu33n GO Conference"
 const conferenceTickets = 50
 
 var remainingTickets uint = 50
-var bookings []string // slice... the difference is var bookings [50]string
+var bookings = make([]map[string]string, 0) // an empty list of map
+// var bookings []string // slice... the difference is var bookings [50]string
 
 func greetUsers() {
 	fmt.Printf("Welcome to %v booking application\n", conferenceName)
@@ -31,15 +33,15 @@ func greetUsers() {
 	fmt.Println("Get your tickets here to attend")
 }
 
-func getFirstNames(bookingDetails []string) []string {
+func getFirstNames() []string {
 
 	firstNames := []string{}
 
 	// range iterates over elements for different data structures (so not only arrays and slices)
 	// underscores (_) are used as blank identifiers
-	for _, bookingElement := range bookingDetails {
-		var names = strings.Fields(bookingElement)
-		firstNames = append(firstNames, names[0])
+	for _, bookingElement := range bookings {
+		// var names = strings.Fields(bookingElement)
+		firstNames = append(firstNames, bookingElement["firstName"])
 	}
 
 	return firstNames
@@ -49,13 +51,12 @@ func getFirstNames(bookingDetails []string) []string {
 }
 
 
-func getUserInput() (string, string, string, uint, string) {
+func getUserInput() (string, string, string, uint) {
 
 	var firstName string
 	var lastName string
 	var email string
 	var userTickets uint
-	var city string
 	// ask user for their name
 
 	fmt.Println("Enter your first name: ")
@@ -74,23 +75,26 @@ func getUserInput() (string, string, string, uint, string) {
 	fmt.Scan(&userTickets)
 	fmt.Println(" ")
 
-	fmt.Println("Enter desired conference location")
-	fmt.Scan(&city)
-	fmt.Println(" ")
-
-	return firstName, lastName, email, userTickets, city
+	return firstName, lastName, email, userTickets
 
 }
 
-func bookTicket(firstName string, lastName string, userTickets uint, email string, conferenceName string) []string {
+func bookTicket(firstName string, lastName string, userTickets uint, email string) {
 
 	remainingTickets = remainingTickets - userTickets
-	bookingDetails := append(bookings, firstName+" "+lastName)
+
+	// creating a map for a user
+	var userData = make(map[string]string) // field datatype and values datatype
+	userData["firstName"] = firstName
+	userData["lastName"] = lastName
+	userData["email"] = email
+	userData["numberOfTickets"] = strconv.FormatUint(uint64(userTickets), 10)
+
+	bookings = append(bookings, userData)
+	fmt.Printf("list of bookings is %v\n", bookings)
 
 	fmt.Printf("thank you %v %v for booking %v tickets, you will receive a confirmation email @ %v\n", firstName, lastName, userTickets, email)
 	fmt.Printf("%v tickets remaining for %v\n", remainingTickets, conferenceName)
-
-	return bookingDetails
 
 	// fmt.Printf("slice length: %v\n", len(bookings))
 }
@@ -100,15 +104,15 @@ func main() {
 	greetUsers()
 
 	for {
-		firstName, lastName, email, userTickets, city := getUserInput()
+		firstName, lastName, email, userTickets := getUserInput()
 
-		isValidName, isValidEmail, isValidTicket, isValidCity := helper.Validation(firstName, lastName, email, userTickets, city, remainingTickets)
+		isValidName, isValidEmail, isValidTicket := helper.Validation(firstName, lastName, email, userTickets, remainingTickets)
 
 		if isValidName && isValidEmail && isValidTicket {
 
-			bookingDetails := bookTicket(firstName, lastName, userTickets, email, conferenceName)
+			bookTicket(firstName, lastName, userTickets, email)
 
-			firstNames := getFirstNames(bookingDetails)
+			firstNames := getFirstNames()
 			fmt.Printf("these are all the first names: %v\n", firstNames)
 
 			if remainingTickets == 0 {
@@ -131,10 +135,6 @@ func main() {
 
 			if !isValidTicket {
 				fmt.Println("number of tickets you entered is invalid")
-			}
-
-			if !isValidCity {
-				fmt.Println("city must be either Lagos or Abuja")
 			}
 
 			fmt.Println(" ")
