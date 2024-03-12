@@ -10,12 +10,19 @@
 // NOTE: GO is type strict and has a strict complier
 // NOTE: in GO there is only one type of loop are FOR LOOP
 
+// go run .
+// go run main.go
+
 package main // using the default package main
 
 import (
 	"booking-app/helper"
 	"fmt"
+	"sync"
+	"time"
 )
+
+var wg = sync.WaitGroup{}
 
 var conferenceName = "mcQu33n GO Conference"
 
@@ -104,11 +111,20 @@ func bookTicket(firstName string, lastName string, userTickets uint, email strin
 	// fmt.Printf("slice length: %v\n", len(bookings))
 }
 
+func sendTIcket(userTickets uint, firstName string, lastName string, email string) {
+	time.Sleep(10 * time.Second)
+	var ticket = fmt.Sprintf("%v tickets fro %v %v", userTickets, firstName, lastName)
+	fmt.Println("##############")
+	fmt.Printf("sending ticket:\n %v \nto email address %v\n", ticket, email)
+	fmt.Println("##############")
+	wg.Done()
+}
+
 func main() {
 
 	greetUsers()
 
-	for {
+	// for {
 		firstName, lastName, email, userTickets := getUserInput()
 
 		isValidName, isValidEmail, isValidTicket := helper.Validation(firstName, lastName, email, userTickets, remainingTickets)
@@ -116,6 +132,9 @@ func main() {
 		if isValidName && isValidEmail && isValidTicket {
 
 			bookTicket(firstName, lastName, userTickets, email)
+			fmt.Println(" ")
+			wg.Add(1)
+			go sendTIcket(userTickets, firstName, lastName, email)
 
 			firstNames := getFirstNames()
 			fmt.Printf("these are all the first names: %v\n", firstNames)
@@ -125,7 +144,7 @@ func main() {
 
 				fmt.Println("All tickets have been sold")
 				fmt.Println("our conference is booked out. come back next year.")
-				break
+				// break
 			}
 		} else {
 			fmt.Println(" ")
@@ -144,7 +163,8 @@ func main() {
 
 			fmt.Println(" ")
 			// break
-			continue
+			// continue
 		}
-	}
+	// }
+	wg.Wait()
 }
